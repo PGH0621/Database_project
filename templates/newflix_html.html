@@ -86,18 +86,37 @@
 
 <header>NewFlix</header>
 
+<!-- 📌 일간 박스오피스 -->
 <h2>박스오피스 🔥 실시간 순위</h2>
-
 <div class="row">
     {% for m in movies %}
     <div class="movie-card">
         <img class="poster" src="/static/posters/{{ m.poster }}" alt="포스터">
         <div class="rank">{{ m.rank }}</div>
+
         <div class="info-box">
             <div class="movie-title">{{ m.movieNm }}</div>
-            <div class="movie-info">코드 {{ m.movieCd }}</div>   <!-- ✔ 추가된 부분 -->
-            <div class="movie-info">개봉 {{ m.openDt }}</div>
-            <div class="movie-info">누적 {{ m.audiAcc }}</div>
+            {% if m.movieCd %}<div class="movie-info">코드 {{ m.movieCd }}</div>{% endif %}
+            {% if m.openDt %}<div class="movie-info">개봉 {{ m.openDt }}</div>{% endif %}
+            {% if m.audiAcc %}<div class="movie-info">누적 {{ m.audiAcc }}</div>{% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 📌 주간 박스오피스 -->
+<h2>주간 박스오피스 🏆</h2>
+<div class="row">
+    {% for w in weekly %}
+    <div class="movie-card">
+        <img class="poster" src="/static/posters/{{ w.poster }}" alt="포스터">
+        <div class="rank">{{ w.rank }}</div>
+
+        <div class="info-box">
+            <div class="movie-title">{{ w.movieNm }}</div>
+            <div class="movie-info">코드 {{ w.movieCd }}</div>
+            <div class="movie-info">개봉 {{ w.openDt }}</div>
+            <div class="movie-info">누적 {{ w.audiAcc }}</div>
         </div>
     </div>
     {% endfor %}
