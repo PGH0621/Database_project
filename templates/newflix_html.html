@@ -214,6 +214,7 @@ h2{
 </section>
 {% endif %}
 
+
 <!-- ================= FILTER PANEL ================= -->
 <div id="filterPanel" class="filter-panel">
   <form method="GET">
@@ -290,7 +291,22 @@ h2{
   </a>
   {% endfor %}
 </div>
-
+{% if favorite_movies %}
+<h2>❤️ 내가 찜한 영화</h2>
+<div class="row">
+  {% for f in favorite_movies %}
+  <a href="/movie/{{ f.movieCd }}" style="text-decoration:none;color:inherit">
+    <div class="movie-card">
+      <img class="poster" src="/static/posters/{{ f.poster }}">
+      <div class="info-box">
+        <div class="movie-title">{{ f.movieNm }}</div>
+        <div class="movie-code">Code: {{ f.movieCd }}</div>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
 <h2>신규 콘텐츠 🆕</h2>
 <div class="row">
   {% for n in new_contents %}

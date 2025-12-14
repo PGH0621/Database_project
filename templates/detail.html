@@ -3,35 +3,208 @@
 <head>
 <meta charset="UTF-8">
 <title>{{ movie.movieNm }}</title>
+
 <style>
 body { background:#000; color:#fff; font-family:Arial; margin:0; }
-.container { display:flex; gap:40px; padding:60px; }
+
+.container{
+  position:relative;
+  display:flex;
+  gap:40px;
+  padding:60px;
+}
+
 .poster { width:300px; border-radius:10px; }
 .meta { font-size:14px; opacity:.85; margin-top:6px; }
+
+/* ===== 찜 버튼 ===== */
+.fav-form{
+  position:absolute;
+  top:20px;
+  right:20px;
+}
+
+.fav-btn{
+  padding:10px 20px;
+  font-size:16px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  transition:.2s;
+}
+.fav-off{ background:#222; color:#fff; }
+.fav-on{ background:#E50914; color:#fff; }
+
+/* ===== 재생 버튼 ===== */
+.play-wrap{
+  margin-top:24px;
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+.play-btn{
+  padding:10px 22px;
+  font-size:15px;
+  border:none;
+  border-radius:6px;
+}
+
+.play-disabled{
+  background:#333;
+  color:#777;
+  cursor:not-allowed;
+}
+
+.play-active{
+  background:#E50914;
+  color:#fff;
+  cursor:pointer;
+}
+
+.play-info{
+  font-size:13px;
+  opacity:.6;
+}
+
+/* ===== 모달 ===== */
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  z-index:1000;
+}
+
+.modal-content{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+}
+
+.close{
+  position:absolute;
+  top:-40px;
+  right:0;
+  font-size:32px;
+  color:#fff;
+  cursor:pointer;
+}
 </style>
 </head>
+
 <body>
 
-<div class="container">
-    <img class="poster" src="/static/posters/{{ movie.poster }}">
-
-    <div>
-        <h1>{{ movie.movieNm }}</h1>
-
-        {% if info.movieNmEn %}<div class="meta">영문명: {{ info.movieNmEn }}</div>{% endif %}
-        {% if info.openDt %}<div class="meta">개봉일: {{ info.openDt }}</div>{% endif %}
-        {% if info.genres %}<div class="meta">장르: {{ info.genres }}</div>{% endif %}
-        {% if info.showTm %}<div class="meta">상영시간: {{ info.showTm }}분</div>{% endif %}
-        {% if info.directors %}<div class="meta">감독: {{ info.directors }}</div>{% endif %}
-        {% if info.actors %}<div class="meta">출연: {{ info.actors }}</div>{% endif %}
-        {% if info.audits %}<div class="meta">관람등급: {{ info.audits }}</div>{% endif %}
-
-        <hr style="margin:20px 0; opacity:.3">
-
-        <div class="meta">누적 관객수: {{ movie.audiAcc }}</div>
-        <div class="meta">누적 매출: {{ movie.salesAcc }}</div>
-    </div>
+<!-- 메인으로 -->
+<div style="margin:30px 60px;">
+  <button onclick="location.href='/'"
+          style="background:#111;color:#fff;border:1px solid #333;
+                 padding:10px 18px;border-radius:6px;cursor:pointer;">
+    ← 메인으로
+  </button>
 </div>
+
+<div class="container">
+
+  <!-- 찜 버튼 -->
+  <form method="POST"
+        action="/favorite/{{ movie.movieCd }}"
+        class="fav-form">
+    <button type="submit"
+            class="fav-btn {{ 'fav-on' if is_favorite else 'fav-off' }}">
+      {{ '❤️ 찜됨' if is_favorite else '🤍 찜하기' }}
+    </button>
+  </form>
+
+  <img class="poster" src="/static/posters/{{ movie.poster }}">
+
+  <div>
+    <h1>{{ movie.movieNm }}</h1>
+
+    {% if info.movieNmEn %}<div class="meta">영문명: {{ info.movieNmEn }}</div>{% endif %}
+    {% if info.openDt %}<div class="meta">개봉일: {{ info.openDt }}</div>{% endif %}
+    {% if info.genres %}<div class="meta">장르: {{ info.genres }}</div>{% endif %}
+    {% if info.showTm %}<div class="meta">상영시간: {{ info.showTm }}분</div>{% endif %}
+    {% if info.directors %}<div class="meta">감독: {{ info.directors }}</div>{% endif %}
+    {% if info.actors %}<div class="meta">출연: {{ info.actors }}</div>{% endif %}
+    {% if info.audits %}<div class="meta">관람등급: {{ info.audits }}</div>{% endif %}
+
+    <hr style="margin:20px 0; opacity:.3">
+
+    <div class="meta">누적 관객수: {{ movie.audiAcc }}</div>
+    <div class="meta">누적 매출: {{ movie.salesAcc }}</div>
+
+    <!-- 재생 버튼 영역 -->
+    <div class="play-wrap">
+
+  <!-- 항상 활성 / 처음부터 재생 -->
+  <button class="play-btn play-active"
+          onclick="openPlayer(0)">
+    ▶ 재생
+  </button>
+
+  {% if has_watch_history %}
+    <button class="play-btn play-active"
+            onclick="openPlayer({{ watched_sec }})">
+      ▶ 이어서 재생
+    </button>
+    <span style="opacity:.6; font-size:13px;">
+      {{ watched_sec|int }}초부터 이어서 재생
+    </span>
+  {% else %}
+    <button class="play-btn play-disabled" disabled>
+      ▶ 이어서 재생
+    </button>
+    <span style="opacity:.6; font-size:13px;">
+      시청 기록이 없습니다
+    </span>
+  {% endif %}
+
+</div>
+  </div>
+</div>
+
+<!-- 비디오 모달 -->
+<div id="videoModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closePlayer()">×</span>
+
+    <video id="movieVideo" controls width="800">
+      <source src="/static/videos/zoo.mp4" type="video/mp4">
+    </video>
+  </div>
+</div>
+
+<script>
+const modal = document.getElementById("videoModal");
+const video = document.getElementById("movieVideo");
+let saveInterval = null;
+
+function openPlayer(startTime){
+  modal.style.display = "block";
+  video.currentTime = startTime || 0;
+  video.play();
+  saveInterval = setInterval(saveWatchTime, 5000);
+}
+
+function closePlayer(){
+  modal.style.display = "none";
+  saveWatchTime();
+  video.pause();
+  clearInterval(saveInterval);
+}
+
+function saveWatchTime(){
+  fetch("/watch_time/{{ movie.movieCd }}", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({
+      watched_sec: video.currentTime
+    })
+  });
+}
+</script>
 
 </body>
 </html>
