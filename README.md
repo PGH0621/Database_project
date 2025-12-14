@@ -1,5 +1,5 @@
 # 🎬 NewFlix  
-SQLite 기반 영화 정보 웹 애플리케이션
+SQLite 기반 OTT 웹 애플리케이션
 
 ## 1. 프로젝트 개요
 NewFlix는 영화 데이터를 기반으로 한 웹 애플리케이션으로,  
@@ -47,3 +47,4 @@ UI보다는 **데이터베이스 구조 설계와 로직 구현**에 중점을 �
 ## 6. 실행 방법
 ip install flask
 python newflix.py
+
