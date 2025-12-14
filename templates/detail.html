@@ -4,26 +4,33 @@
 <meta charset="UTF-8">
 <title>{{ movie.movieNm }}</title>
 <style>
-body{background:#000;color:#fff;font-family:Arial;margin:0}
-.container{padding:40px}
-.poster{width:260px;border-radius:8px}
+body { background:#000; color:#fff; font-family:Arial; margin:0; }
+.container { display:flex; gap:40px; padding:60px; }
+.poster { width:300px; border-radius:10px; }
+.meta { font-size:14px; opacity:.85; margin-top:6px; }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>{{ movie.movieNm }}</h1>
-  <img class="poster" src="/static/posters/{{ movie.poster }}">
-  <p>누적 관객: {{ movie.audiAcc }}</p>
+    <img class="poster" src="/static/posters/{{ movie.poster }}">
 
-  <h3>박스오피스 이력</h3>
-  <ul>
-    {% for h in history %}
-      <li>{{ h.targetDt }} / 순위 {{ h.rank }}</li>
-    {% endfor %}
-  </ul>
+    <div>
+        <h1>{{ movie.movieNm }}</h1>
 
-  <a href="/" style="color:#E50914">← 돌아가기</a>
+        {% if info.movieNmEn %}<div class="meta">영문명: {{ info.movieNmEn }}</div>{% endif %}
+        {% if info.openDt %}<div class="meta">개봉일: {{ info.openDt }}</div>{% endif %}
+        {% if info.genres %}<div class="meta">장르: {{ info.genres }}</div>{% endif %}
+        {% if info.showTm %}<div class="meta">상영시간: {{ info.showTm }}분</div>{% endif %}
+        {% if info.directors %}<div class="meta">감독: {{ info.directors }}</div>{% endif %}
+        {% if info.actors %}<div class="meta">출연: {{ info.actors }}</div>{% endif %}
+        {% if info.audits %}<div class="meta">관람등급: {{ info.audits }}</div>{% endif %}
+
+        <hr style="margin:20px 0; opacity:.3">
+
+        <div class="meta">누적 관객수: {{ movie.audiAcc }}</div>
+        <div class="meta">누적 매출: {{ movie.salesAcc }}</div>
+    </div>
 </div>
 
 </body>

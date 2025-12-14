@@ -8,25 +8,33 @@ DB = "moviesM.db"
 conn = sqlite3.connect(DB)
 cur = conn.cursor()
 
+# =========================
 # 테이블 초기화
+# =========================
 cur.execute("DROP TABLE IF EXISTS movies")
 
 cur.execute("""
 CREATE TABLE movies (
-    movieCd TEXT,
-    movieNm TEXT,
-    rank TEXT,
-    audiCnt TEXT,
-    audiAcc TEXT,
+    movieCd   TEXT,
+    movieNm   TEXT,
+    rank      TEXT,
+    audiCnt   TEXT,
+    audiAcc   TEXT,
     salesAmt TEXT,
     salesAcc TEXT,
-    targetDt TEXT,
+    openDt    TEXT,
+    targetDt  TEXT,
     PRIMARY KEY (movieCd, targetDt)
 )
 """)
 
+# =========================
 # 최근 3개월 (90일)
-dates = [(datetime.today() - timedelta(days=i)).strftime("%Y%m%d") for i in range(90)]
+# =========================
+dates = [
+    (datetime.today() - timedelta(days=i)).strftime("%Y%m%d")
+    for i in range(90)
+]
 
 for targetDt in dates:
     url = (
@@ -44,16 +52,17 @@ for targetDt in dates:
     for m in data:
         cur.execute("""
             INSERT OR REPLACE INTO movies
-            (movieCd, movieNm, rank, audiCnt, audiAcc, salesAmt, salesAcc, targetDt)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (movieCd, movieNm, rank, audiCnt, audiAcc, salesAmt, salesAcc, openDt, targetDt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
-            m["movieCd"],
-            m["movieNm"],
-            m["rank"],
-            m["audiCnt"],
-            m["audiAcc"],
-            m["salesAmt"],
-            m["salesAcc"],
+            m.get("movieCd"),
+            m.get("movieNm"),
+            m.get("rank"),
+            m.get("audiCnt"),
+            m.get("audiAcc"),
+            m.get("salesAmt"),
+            m.get("salesAcc"),
+            m.get("openDt"),   # 🔹 개봉일 저장
             targetDt
         ))
 
@@ -61,4 +70,5 @@ for targetDt in dates:
 
 conn.commit()
 conn.close()
-print("✅ DB 수집 완료")
+
+print("✅ DB 수집 완료 (openDt 포함)")

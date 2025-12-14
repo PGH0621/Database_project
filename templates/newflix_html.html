@@ -31,6 +31,7 @@ header{
 .filter-btn{
   padding:8px 16px;
   border-radius:20px;
+  margin-right:80px;
   background:#111;
   color:#fff;
   border:1px solid #333;
@@ -99,10 +100,19 @@ header{
   display:none;
   background:#111;
   margin:90px 40px 10px;
-  padding:16px;
+  padding:20px;
   border-radius:8px;
 }
 .filter-panel.active{display:block}
+
+.filter-group{
+  margin-bottom:14px;
+  font-size:14px;
+}
+.filter-group label{
+  margin-right:18px;
+  cursor:pointer;
+}
 
 /* CONTENT */
 h2{
@@ -113,7 +123,7 @@ h2{
 
 .row{
   display:flex;
-  overflow-x:auto;      /* 수동 스크롤 */
+  overflow-x:auto;
   padding:20px 40px;
   gap:18px;
 }
@@ -174,13 +184,18 @@ h2{
 
 <header>
   <div>NewFlix</div>
-  <button class="filter-btn" onclick="toggleFilter()">필터</button>
+  <div>
+    <button class="filter-btn" onclick="location.href='/all'">전체 보기</button>
+    <button class="filter-btn" onclick="toggleFilter()">필터</button>
+  </div>
 </header>
 
-{% if not only_new %}
+
+<!-- ================= HERO (필터 없을 때만) ================= -->
+{% if not filter_active %}
 <section class="hero">
   <video id="heroVideo" autoplay muted loop playsinline>
-    <source src="/static/videos/banner.mp4" type="video/mp4">
+    <source src="/static/videos/zoo.mp4" type="video/mp4">
   </video>
 
   <div class="hero-content">
@@ -199,17 +214,65 @@ h2{
 </section>
 {% endif %}
 
+<!-- ================= FILTER PANEL ================= -->
 <div id="filterPanel" class="filter-panel">
   <form method="GET">
-    <label>
-      <input type="checkbox" name="only_new" value="1" {% if only_new %}checked{% endif %}>
-      신규 콘텐츠만 보기
-    </label>
-    <button type="submit" class="filter-btn" style="margin-left:10px">적용</button>
+
+    <div class="filter-group">
+      <strong>콘텐츠</strong><br>
+      <label>
+        <input type="checkbox" name="only_new" value="1" {% if only_new %}checked{% endif %}>
+        신규 콘텐츠만
+      </label>
+    </div>
+
+    <div class="filter-group">
+      <strong>국가</strong><br>
+      <label><input type="checkbox" name="country" value="korea" {% if country=='korea' %}checked{% endif %}> 국내</label>
+      <label><input type="checkbox" name="country" value="foreign" {% if country=='foreign' %}checked{% endif %}> 해외</label>
+    </div>
+
+    <div class="filter-group">
+      <strong>관객 수</strong><br>
+      <label><input type="checkbox" name="audience" value="100" {% if audience=='100' %}checked{% endif %}> 100만+</label>
+      <label><input type="checkbox" name="audience" value="500" {% if audience=='500' %}checked{% endif %}> 500만+</label>
+    </div>
+
+    <div class="filter-group">
+      <strong>장르</strong><br>
+      <label><input type="checkbox" name="genre" value="애니메이션" {% if genre=='애니메이션' %}checked{% endif %}> 애니메이션</label>
+      <label><input type="checkbox" name="genre" value="코미디" {% if genre=='코미디' %}checked{% endif %}> 코미디</label>
+      <label><input type="checkbox" name="genre" value="SF" {% if genre=='SF' %}checked{% endif %}> SF</label>
+      <label><input type="checkbox" name="genre" value="액션" {% if genre=='액션' %}checked{% endif %}> 액션</label>
+      <label><input type="checkbox" name="genre" value="드라마" {% if genre=='드라마' %}checked{% endif %}> 드라마</label>
+    </div>
+
+    <button type="submit" class="filter-btn">적용</button>
   </form>
 </div>
 
-{% if not only_new %}
+<!-- ================= FILTER RESULT SLIDE ================= -->
+{% if filter_active %}
+<h2>필터 결과 🎯</h2>
+<div class="row">
+  {% for f in filter_results %}
+  <a href="/movie/{{ f.movieCd }}" style="text-decoration:none;color:inherit">
+    <div class="movie-card">
+      <img class="poster" src="/static/posters/{{ f.poster }}">
+      <div class="info-box">
+        <div class="movie-title">{{ f.movieNm }}</div>
+        <div class="movie-info">누적 {{ f.audiAcc }}</div>
+        <div class="movie-code">Code: {{ f.movieCd }}</div>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ================= NORMAL MODE ================= -->
+{% if not filter_active %}
+
 <h2>{{ selected_year }}년 {{ selected_month }}월 박스오피스 🔥</h2>
 <div class="row">
   {% for m in movies %}
@@ -227,9 +290,8 @@ h2{
   </a>
   {% endfor %}
 </div>
-{% endif %}
 
-<h2>{% if only_new %}신규 콘텐츠 🆕{% else %}신규 콘텐츠 🆕 (최근 1개월){% endif %}</h2>
+<h2>신규 콘텐츠 🆕</h2>
 <div class="row">
   {% for n in new_contents %}
   <a href="/movie/{{ n.movieCd }}" style="text-decoration:none;color:inherit">
@@ -238,13 +300,14 @@ h2{
       <div class="badge-new">NEW</div>
       <div class="info-box">
         <div class="movie-title">{{ n.movieNm }}</div>
-        <div class="movie-info">첫 등장 {{ n.targetDt }}</div>
         <div class="movie-code">Code: {{ n.movieCd }}</div>
       </div>
     </div>
   </a>
   {% endfor %}
 </div>
+
+{% endif %}
 
 <script>
 function toggleFilter(){
