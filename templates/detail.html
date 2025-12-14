@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>{{ movie.movieNm }}</title>
+<style>
+body{background:#000;color:#fff;font-family:Arial;margin:0}
+.container{padding:40px}
+.poster{width:260px;border-radius:8px}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>{{ movie.movieNm }}</h1>
+  <img class="poster" src="/static/posters/{{ movie.poster }}">
+  <p>누적 관객: {{ movie.audiAcc }}</p>
+
+  <h3>박스오피스 이력</h3>
+  <ul>
+    {% for h in history %}
+      <li>{{ h.targetDt }} / 순위 {{ h.rank }}</li>
+    {% endfor %}
+  </ul>
+
+  <a href="/" style="color:#E50914">← 돌아가기</a>
+</div>
+
+</body>
+</html>

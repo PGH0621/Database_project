@@ -1,126 +1,265 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>NewFlix</title>
-    <style>
-        body {
-            margin: 0;
-            background-color: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
-        }
+<meta charset="UTF-8">
+<title>NewFlix</title>
 
-        header {
-            padding: 18px 40px;
-            font-size: 32px;
-            font-weight: bold;
-            color: #E50914;
-        }
+<style>
+body{
+  margin:0;
+  background:#000;
+  color:#fff;
+  font-family:Arial, sans-serif;
+}
 
-        h2 {
-            margin-left: 40px;
-            font-size: 24px;
-            margin-top: 30px;
-        }
+/* HEADER */
+header{
+  position:fixed;
+  top:0;
+  width:100%;
+  z-index:100;
+  padding:18px 40px;
+  font-size:32px;
+  font-weight:bold;
+  color:#E50914;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:linear-gradient(to bottom, rgba(0,0,0,.85), rgba(0,0,0,0));
+}
 
-        .row {
-            display: flex;
-            overflow-x: auto;
-            padding: 20px 40px;
-            gap: 18px;
-            scroll-behavior: smooth;
-        }
+.filter-btn{
+  padding:8px 16px;
+  border-radius:20px;
+  background:#111;
+  color:#fff;
+  border:1px solid #333;
+  cursor:pointer;
+}
 
-        .row::-webkit-scrollbar { display: none; }
+/* HERO VIDEO */
+.hero{
+  position:relative;
+  height:85vh;
+  overflow:hidden;
+}
+.hero video{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.hero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    to top,
+    rgba(0,0,0,.9) 5%,
+    rgba(0,0,0,.4) 40%,
+    rgba(0,0,0,.1) 70%
+  );
+}
+.hero-content{
+  position:absolute;
+  left:40px;
+  bottom:20%;
+  z-index:2;
+  max-width:500px;
+}
+.hero-title{font-size:48px;font-weight:bold}
+.hero-desc{font-size:16px;opacity:.85;margin:15px 0}
+.hero-buttons button{
+  padding:10px 22px;
+  border:none;
+  border-radius:6px;
+  margin-right:10px;
+  cursor:pointer;
+}
+.btn-play{background:#fff;color:#000}
+.btn-info{background:rgba(109,109,110,.7);color:#fff}
 
-        .movie-card {
-            min-width: 230px;
-            height: 330px;
-            background-color: #111;
-            border-radius: 8px;
-            position: relative;
-            transition: transform 0.25s;
-            cursor: pointer;
-            overflow: hidden;
-        }
+/* MUTE BUTTON */
+.mute-btn{
+  position:absolute;
+  right:40px;
+  bottom:40px;
+  z-index:3;
+  width:48px;
+  height:48px;
+  border-radius:50%;
+  border:none;
+  background:rgba(0,0,0,.6);
+  color:#fff;
+  font-size:20px;
+  cursor:pointer;
+}
 
-        .movie-card:hover { transform: scale(1.12); z-index: 2; }
+/* FILTER PANEL */
+.filter-panel{
+  display:none;
+  background:#111;
+  margin:90px 40px 10px;
+  padding:16px;
+  border-radius:8px;
+}
+.filter-panel.active{display:block}
 
-        .poster {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+/* CONTENT */
+h2{
+  margin-left:40px;
+  margin-top:40px;
+  font-size:24px;
+}
 
-        .rank {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 26px;
-            font-weight: bold;
-            color: #E50914;
-            text-shadow: 0 0 6px #000;
-        }
+.row{
+  display:flex;
+  overflow-x:auto;      /* 수동 스크롤 */
+  padding:20px 40px;
+  gap:18px;
+}
+.row::-webkit-scrollbar{display:none}
 
-        .info-box {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.95));
-        }
+.movie-card{
+  min-width:230px;
+  height:330px;
+  background:#111;
+  border-radius:8px;
+  position:relative;
+  transition:.25s;
+  overflow:hidden;
+}
+.movie-card:hover{transform:scale(1.12);z-index:2}
 
-        .movie-title {
-            font-size: 15px;
-            font-weight: bold;
-        }
+.poster{width:100%;height:100%;object-fit:cover}
 
-        .movie-info {
-            font-size: 11px;
-            opacity: .85;
-        }
-    </style>
+.rank{
+  position:absolute;
+  top:10px;
+  left:10px;
+  font-size:26px;
+  font-weight:bold;
+  color:#E50914;
+}
+
+.badge-new{
+  position:absolute;
+  top:10px;
+  right:10px;
+  background:#E50914;
+  padding:4px 8px;
+  border-radius:6px;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.info-box{
+  position:absolute;
+  bottom:0;
+  width:100%;
+  padding:12px;
+  background:linear-gradient(transparent,rgba(0,0,0,.95));
+}
+
+.movie-title{font-size:15px;font-weight:bold}
+.movie-info{font-size:11px;opacity:.85}
+.movie-code{
+  font-size:10px;
+  opacity:.6;
+  margin-top:2px;
+}
+</style>
 </head>
+
 <body>
 
-<header>NewFlix</header>
+<header>
+  <div>NewFlix</div>
+  <button class="filter-btn" onclick="toggleFilter()">필터</button>
+</header>
 
-<!-- 📌 일간 박스오피스 -->
-<h2>박스오피스 🔥 실시간 순위</h2>
-<div class="row">
-    {% for m in movies %}
-    <div class="movie-card">
-        <img class="poster" src="/static/posters/{{ m.poster }}" alt="포스터">
-        <div class="rank">{{ m.rank }}</div>
+{% if not only_new %}
+<section class="hero">
+  <video id="heroVideo" autoplay muted loop playsinline>
+    <source src="/static/videos/banner.mp4" type="video/mp4">
+  </video>
 
-        <div class="info-box">
-            <div class="movie-title">{{ m.movieNm }}</div>
-            {% if m.movieCd %}<div class="movie-info">코드 {{ m.movieCd }}</div>{% endif %}
-            {% if m.openDt %}<div class="movie-info">개봉 {{ m.openDt }}</div>{% endif %}
-            {% if m.audiAcc %}<div class="movie-info">누적 {{ m.audiAcc }}</div>{% endif %}
-        </div>
+  <div class="hero-content">
+    <div class="hero-title">NOW STREAMING</div>
+    <div class="hero-desc">
+      이번 달 가장 주목받는 작품<br>
+      극장에서 바로 화제의 중심
     </div>
-    {% endfor %}
+    <div class="hero-buttons">
+      <button class="btn-play">▶ 재생</button>
+      <button class="btn-info">ℹ 상세 정보</button>
+    </div>
+  </div>
+
+  <button class="mute-btn" id="muteBtn" onclick="toggleMute()">🔇</button>
+</section>
+{% endif %}
+
+<div id="filterPanel" class="filter-panel">
+  <form method="GET">
+    <label>
+      <input type="checkbox" name="only_new" value="1" {% if only_new %}checked{% endif %}>
+      신규 콘텐츠만 보기
+    </label>
+    <button type="submit" class="filter-btn" style="margin-left:10px">적용</button>
+  </form>
 </div>
 
-<!-- 📌 주간 박스오피스 -->
-<h2>주간 박스오피스 🏆</h2>
+{% if not only_new %}
+<h2>{{ selected_year }}년 {{ selected_month }}월 박스오피스 🔥</h2>
 <div class="row">
-    {% for w in weekly %}
+  {% for m in movies %}
+  <a href="/movie/{{ m.movieCd }}" style="text-decoration:none;color:inherit">
     <div class="movie-card">
-        <img class="poster" src="/static/posters/{{ w.poster }}" alt="포스터">
-        <div class="rank">{{ w.rank }}</div>
-
-        <div class="info-box">
-            <div class="movie-title">{{ w.movieNm }}</div>
-            <div class="movie-info">코드 {{ w.movieCd }}</div>
-            <div class="movie-info">개봉 {{ w.openDt }}</div>
-            <div class="movie-info">누적 {{ w.audiAcc }}</div>
-        </div>
+      <img class="poster" src="/static/posters/{{ m.poster }}">
+      <div class="rank">{{ m.rank }}</div>
+      {% if m.is_new %}<div class="badge-new">NEW</div>{% endif %}
+      <div class="info-box">
+        <div class="movie-title">{{ m.movieNm }}</div>
+        <div class="movie-info">누적 {{ m.audiAcc }}</div>
+        <div class="movie-code">Code: {{ m.movieCd }}</div>
+      </div>
     </div>
-    {% endfor %}
+  </a>
+  {% endfor %}
 </div>
+{% endif %}
+
+<h2>{% if only_new %}신규 콘텐츠 🆕{% else %}신규 콘텐츠 🆕 (최근 1개월){% endif %}</h2>
+<div class="row">
+  {% for n in new_contents %}
+  <a href="/movie/{{ n.movieCd }}" style="text-decoration:none;color:inherit">
+    <div class="movie-card">
+      <img class="poster" src="/static/posters/{{ n.poster }}">
+      <div class="badge-new">NEW</div>
+      <div class="info-box">
+        <div class="movie-title">{{ n.movieNm }}</div>
+        <div class="movie-info">첫 등장 {{ n.targetDt }}</div>
+        <div class="movie-code">Code: {{ n.movieCd }}</div>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+<script>
+function toggleFilter(){
+  document.getElementById("filterPanel").classList.toggle("active");
+}
+
+const video = document.getElementById("heroVideo");
+const muteBtn = document.getElementById("muteBtn");
+
+function toggleMute(){
+  if(!video) return;
+  video.muted = !video.muted;
+  muteBtn.textContent = video.muted ? "🔇" : "🔊";
+}
+</script>
 
 </body>
 </html>
